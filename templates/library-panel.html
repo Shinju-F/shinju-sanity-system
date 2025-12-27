@@ -1,0 +1,191 @@
+
+<!-- Библиотека состояний рассудка - компактная версия -->
+<div class="sanity-library-panel gothic-panel">
+  <!-- Заголовок и управление -->
+  <div class="gothic-header">
+    <div class="header-content">
+      <div class="token-container">
+        <div class="library-icon">
+          <i class="fas fa-book"></i>
+        </div>
+        <div class="token-frame"></div>
+      </div>
+      <div class="header-info">
+        <h1 class="gothic-title">Библиотека состояний рассудка</h1>
+        <p class="gothic-subtitle">Все психозы и воодушевления системы</p>
+        <div class="header-stats">
+          <span class="stat-item">
+            <i class="fas fa-skull"></i>
+            <strong>{{stats.totalPsychoses}}</strong> психозов
+          </span>
+          <span class="stat-item">
+            <i class="fas fa-sparkles"></i>
+            <strong>{{stats.totalInspirations}}</strong> воодушевлений
+          </span>
+          <span class="stat-item">
+            <i class="fas fa-layer-group"></i>
+            Уровень: <strong>{{currentTier}}</strong>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="header-controls">
+      <button class="gothic-btn refresh-btn" title="Обновить">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+      <button class="gothic-btn close-btn" title="Закрыть">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Вкладки и поиск -->
+  <div class="gothic-tabs">
+    <div class="tabs-container">
+      <button class="gothic-tab-btn {{#if (eq currentTab 'psychosis')}}active{{/if}}" data-tab="psychosis">
+        <i class="fas fa-skull"></i>
+        <span>Психозы</span>
+        <span class="tab-badge">{{stats.totalPsychoses}}</span>
+      </button>
+      <button class="gothic-tab-btn {{#if (eq currentTab 'inspiration')}}active{{/if}}" data-tab="inspiration">
+        <i class="fas fa-sparkles"></i>
+        <span>Воодушевления</span>
+        <span class="tab-badge">{{stats.totalInspirations}}</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Поиск и фильтры -->
+  <div class="library-filters">
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Поиск по названию или описанию..." value="{{searchTerm}}">
+      <button class="search-btn" title="Найти">
+        <i class="fas fa-search"></i>
+      </button>
+      {{#if searchTerm}}
+      <button class="search-clear" title="Очистить поиск">
+        <i class="fas fa-times"></i>
+      </button>
+      {{/if}}
+    </div>
+      
+    <!-- Уровни -->
+    <div class="tier-filters">
+      <div class="tier-label">
+        <i class="fas fa-filter"></i>
+        <span>Уровень:</span>
+      </div>
+      <div class="tier-buttons">
+        <button class="tier-filter-btn {{#if (eq currentTier 1)}}active{{/if}}" data-tier="1">
+          1 <span class="tier-count">({{tabStats.tier1}})</span>
+        </button>
+        <button class="tier-filter-btn {{#if (eq currentTier 2)}}active{{/if}}" data-tier="2">
+          2 <span class="tier-count">({{tabStats.tier2}})</span>
+        </button>
+        <button class="tier-filter-btn {{#if (eq currentTier 3)}}active{{/if}}" data-tier="3">
+          3 <span class="tier-count">({{tabStats.tier3}})</span>
+        </button>
+        <button class="tier-filter-btn {{#if (eq currentTier 4)}}active{{/if}}" data-tier="4">
+          4 <span class="tier-count">({{tabStats.tier4}})</span>
+        </button>
+        <button class="tier-filter-btn {{#if (eq currentTier 5)}}active{{/if}}" data-tier="5">
+          5 <span class="tier-count">({{tabStats.tier5}})</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Основное содержимое С ПРАВИЛЬНЫМ СКРОЛЛИНГОМ -->
+  <div class="gothic-content library-scrollable-container">
+    
+    <!-- Список состояний -->
+    <div class="tab-content active" data-tab="content">
+      {{#if allConditions.length}}
+        <div class="conditions-scrollable-list">
+          {{#each allConditions}}
+          <div class="gothic-condition-card {{this.type}}" id="condition-{{this.id}}">
+            <div class="condition-header">
+              <div class="condition-title">
+                <h4>
+                  <i class="fas fa-{{#if (eq this.type 'psychosis')}}skull{{else}}sparkles{{/if}}"></i>
+                  {{this.name}}
+                </h4>
+                <div class="condition-meta">
+                  <span class="condition-tier tier-{{this.tier}}">Уровень {{this.tier}}</span>
+                  <span class="condition-type {{this.type}}">
+                    {{#if (eq this.type 'psychosis')}}Психоз{{else}}Воодушевление{{/if}}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Механика -->
+            <div class="condition-mechanics">
+              <h5><i class="fas fa-gamepad"></i> Механика</h5>
+              <p class="description-text">{{this.description}}</p>
+            </div>
+            
+            <!-- Восприятие изнутри -->
+            <div class="condition-inner-perception">
+              <h5><i class="fas fa-brain"></i> Восприятие изнутри</h5>
+              <p class="description-text">{{this.innerPerception}}</p>
+            </div>
+            
+            <!-- Внешние проявления -->
+            <div class="condition-external-manifestations">
+              <h5><i class="fas fa-eye"></i> Внешние проявления</h5>
+              <p class="description-text">{{this.externalManifestations}}</p>
+            </div>
+            
+            <div class="condition-meta-info">
+              <div class="mechanics-grid">
+                <div class="mech-item">
+                  <span class="mech-label">Тип:</span>
+                  <span class="mech-value {{this.type}}">
+                    {{#if (eq this.type 'psychosis')}}Психоз{{else}}Воодушевление{{/if}}
+                  </span>
+                </div>
+                <div class="mech-item">
+                  <span class="mech-label">Уровень:</span>
+                  <span class="mech-value tier-{{this.tier}}">{{this.tier}}</span>
+                </div>
+                <div class="mech-item">
+                  <span class="mech-label">ID:</span>
+                  <span class="mech-value">{{this.id}}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="condition-note">
+              <i class="fas fa-theater-masks"></i>
+              <p><strong>Для отыгрыша:</strong> Обсудите с мастером, как именно это состояние проявляется у вашего персонажа.</p>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      {{else}}
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="fas fa-search"></i>
+          </div>
+          <h3>Состояния не найдены</h3>
+          <p>Попробуйте изменить уровень или поисковый запрос</p>
+        </div>
+      {{/if}}
+    </div>
+    
+  </div>
+  
+  <!-- Подвал -->
+  <div class="panel-footer">
+    <div class="footer-info">
+      <p>
+        <i class="fas fa-info-circle"></i> 
+        Всего состояний: {{stats.totalConditions}} 
+        ({{stats.totalPsychoses}} психозов, {{stats.totalInspirations}} воодушевлений) |
+        Текущий фильтр: {{currentTab}} / Уровень {{currentTier}}
+      </p>
+    </div>
+  </div>
+</div>

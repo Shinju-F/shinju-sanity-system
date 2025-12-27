@@ -1,0 +1,524 @@
+
+<!-- Панель игрока - Готический дизайн -->
+<div class="sanity-player-panel gothic-panel">
+  {{#if hasCharacter}}
+  
+  <!-- Компактная шапка с токеном -->
+  <div class="gothic-header">
+    <div class="header-content">
+      <div class="token-container">
+        <img src="{{actor.token}}" alt="{{actor.name}}" class="character-token">
+        <div class="token-frame"></div>
+        <div class="sanity-indicator sanity-level-{{stressLevel}}">
+          <i class="fas fa-brain"></i>
+        </div>
+      </div>
+      <div class="header-info">
+        <h1 class="gothic-title">{{actor.name}}</h1>
+        <p class="gothic-subtitle">Состояние рассудка</p>
+        <div class="header-stats">
+          <span class="stat-item">
+            <i class="fas fa-heartbeat"></i>
+            <strong>{{sanity}}/{{maxSanity}}</strong> рассудка
+          </span>
+          <span class="stat-item">
+            <i class="fas fa-exclamation-triangle"></i>
+            Уровень стресса: <strong class="stress-badge stress-{{stressLevel}}">{{stressLevel}}</strong>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="header-controls">
+      <button class="gothic-btn refresh-btn" title="Обновить">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+      <button class="gothic-btn close-btn" title="Закрыть">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Вкладки -->
+<div class="gothic-tabs">
+  <div class="tabs-container">
+    <button class="gothic-tab-btn active" data-tab="overview">
+      <i class="fas fa-tachometer-alt"></i>
+      <span>Обзор</span>
+    </button>
+    <button class="gothic-tab-btn" data-tab="conditions">
+      <i class="fas fa-list"></i>
+      <span>Состояния</span>
+      {{#if activeConditions.length}}
+      <span class="tab-badge">{{activeConditions.length}}</span>
+      {{/if}}
+    </button>
+    <button class="gothic-tab-btn" data-tab="history">
+      <i class="fas fa-history"></i>
+      <span>История</span>
+    </button>
+    <button class="gothic-tab-btn" data-tab="info">
+      <i class="fas fa-info-circle"></i>
+      <span>Справка</span>
+    </button>
+  </div>
+</div>
+
+<!-- Контент вкладок С СОХРАНЕНИЕМ СКРОЛЛА -->
+<div class="gothic-content">
+    
+    <!-- Вкладка: Обзор -->
+    <div class="tab-content active" data-tab="overview">
+      <div class="overview-scrollable-list">
+        <div class="overview-grid">
+          
+          <!-- Шкала рассудка -->
+          <div class="gothic-card sanity-meter-card">
+            <div class="card-header">
+              <h3><i class="fas fa-brain"></i> Уровень рассудка</h3>
+              <span class="card-value">{{round sanityPercentage 1}}%</span>
+            </div>
+            <div class="meter-container">
+              <div class="gothic-meter">
+                <div class="meter-fill" style="width: {{sanityPercentage}}%"
+                     data-percentage="{{sanityPercentage}}">
+                  <div class="meter-glow"></div>
+                  <span class="meter-text">{{sanity}}/{{maxSanity}}</span>
+                </div>
+              </div>
+              <div class="meter-labels">
+                <span>0%</span>
+                <span>50%</span>
+                <span>100%</span>
+              </div>
+            </div>
+            <div class="meter-status">
+              {{#if isLowSanity}}<span class="status-danger"><i class="fas fa-skull"></i> Критически низкий</span>{{/if}}
+              {{#if isMediumSanity}}<span class="status-warning"><i class="fas fa-exclamation-triangle"></i> Напряжение</span>{{/if}}
+              {{#if isHighSanity}}<span class="status-safe"><i class="fas fa-shield-alt"></i> Стабильно</span>{{/if}}
+            </div>
+          </div>
+          
+          <!-- Уровень стресса -->
+          <div class="gothic-card stress-card">
+            <div class="card-header">
+              <h3><i class="fas fa-exclamation-triangle"></i> Уровень стресса</h3>
+              <div class="stress-level-display stress-{{stressLevel}}">
+                {{stressLevel}}
+              </div>
+            </div>
+            <div class="stress-info">
+              <h4>{{getStressDescriptionName stressLevel}}</h4>
+              <p class="stress-desc">{{getStressDescriptionText stressLevel}}</p>
+            </div>
+            <div class="chances-grid">
+  <div class="chance-item psychosis">
+    <div class="chance-label">
+      <i class="fas fa-skull"></i>
+      <span>Шанс психоза</span>
+    </div>
+    <div class="chance-value">
+      {{#if (eq stressLevel 0)}}-{{else}}{{psychosisChance}}%{{/if}}
+    </div>
+  </div>
+  <div class="chance-item inspiration">
+    <div class="chance-label">
+      <i class="fas fa-sparkles"></i>
+      <span>Шанс воодушевления</span>
+    </div>
+    <div class="chance-value">
+      {{#if (eq stressLevel 0)}}-{{else}}{{inspirationChance}}%{{/if}}
+    </div>
+  </div>
+</div>
+          
+          <!-- Формула рассудка -->
+          <div class="gothic-card formula-card">
+            <div class="card-header">
+              <h3><i class="fas fa-calculator"></i> Формула рассудка</h3>
+            </div>
+            <div class="formula-display">
+              <div class="formula-text">
+                <code>{{formula}}</code>
+              </div>
+              <div class="formula-breakdown">
+                <div class="ability-mod int-mod">
+                  <span class="mod-label">Интеллект</span>
+                  <span class="mod-value {{#if (gte abilityMods.int 0)}}positive{{else}}negative{{/if}}">
+                    {{#if (gte abilityMods.int 0)}}+{{/if}}{{abilityMods.int}}
+                  </span>
+                </div>
+                <div class="ability-mod cha-mod">
+                  <span class="mod-label">Харизма</span>
+                  <span class="mod-value {{#if (gte abilityMods.cha 0)}}positive{{else}}negative{{/if}}">
+                    {{#if (gte abilityMods.cha 0)}}+{{/if}}{{abilityMods.cha}}
+                  </span>
+                </div>
+                <div class="ability-mod wis-mod">
+                  <span class="mod-label">Мудрость</span>
+                  <span class="mod-value {{#if (gte abilityMods.wis 0)}}positive{{else}}negative{{/if}}">
+                    {{#if (gte abilityMods.wis 0)}}+{{/if}}{{abilityMods.wis}}
+                  </span>
+                </div>
+              </div>
+              <div class="formula-note">
+                <i class="fas fa-info-circle"></i>
+                Базовое значение 10 + модификаторы ментальных характеристик
+              </div>
+            </div>
+          </div>
+          
+          <!-- Статистика -->
+          <div class="gothic-card stats-card">
+            <div class="card-header">
+              <h3><i class="fas fa-chart-bar"></i> Статистика</h3>
+            </div>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-icon">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-label">Последнее обновление</div>
+                  <div class="stat-value">Только что</div>
+                </div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon">
+                  <i class="fas fa-history"></i>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-label">Записей в истории</div>
+                  <div class="stat-value">{{recentHistory.length}}</div>
+                </div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon">
+                  <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-label">Активных состояний</div>
+                  <div class="stat-value">{{activeConditions.length}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+    <!-- Вкладка: Активные состояния -->
+  <div class="tab-content" data-tab="conditions">
+    {{#if activeConditions.length}}
+<div class="conditions-container">
+  {{#each activeConditions}}
+  <div class="gothic-condition-card {{this.type}}" id="condition-{{this.id}}">
+    <div class="condition-header">
+      <div class="condition-title">
+        <h4>
+          <i class="fas fa-{{getConditionIcon this.type}}"></i>
+          {{this.name}}
+        </h4>
+        <div class="condition-meta">
+          <span class="condition-tier tier-{{this.tier}}">Уровень {{this.tier}}</span>
+          <span class="condition-type {{this.type}}">
+            {{getConditionType this.type}}
+          </span>
+        </div>
+      </div>
+      <button class="condition-toggle" data-condition-id="{{this.id}}" title="Подробнее">
+        <i class="fas fa-chevron-down toggle-icon"></i>
+      </button>
+    </div>
+    
+    <div class="condition-preview">
+      <p>{{shorten this.description 120}}</p>
+    </div>
+    
+    <div class="condition-details" id="condition-details-{{this.id}}" style="display: none;">
+      <div class="details-content">
+        <div class="details-section">
+          <h5><i class="fas fa-scroll"></i> Полное описание</h5>
+          <p class="condition-description">{{this.description}}</p>
+        </div>
+        
+        <div class="details-section">
+          <h5><i class="fas fa-gamepad"></i> Механика</h5>
+          <div class="mechanics-grid">
+            <div class="mech-item">
+              <span class="mech-label">Тип:</span>
+              <span class="mech-value {{this.type}}">
+                {{getConditionType this.type}}
+              </span>
+            </div>
+            <div class="mech-item">
+              <span class="mech-label">Уровень:</span>
+              <span class="mech-value tier-{{this.tier}}">{{this.tier}}</span>
+            </div>
+            <div class="mech-item">
+              <span class="mech-label">Действует:</span>
+              <span class="mech-value">До снятия</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="details-note">
+          <i class="fas fa-theater-masks"></i>
+          <p><strong>Для отыгрыша:</strong> Обсудите с мастером, как именно это состояние проявляется у вашего персонажа.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{/each}}
+</div>
+{{else}}
+<div class="empty-state">
+  <div class="empty-icon">
+    <i class="fas fa-check-circle"></i>
+  </div>
+  <h3>Нет активных состояний</h3>
+  <p>Ваш персонаж не имеет активных психозов или воодушевлений</p>
+</div>
+{{/if}}
+  </div>
+    
+     <!-- Вкладка: История -->
+  <div class="tab-content" data-tab="history">
+    {{#if recentHistory.length}}
+<div class="history-timeline">
+  {{#each recentHistory}}
+  <div class="timeline-item">
+    <div class="timeline-marker">
+      <div class="marker-icon">
+        {{#if this.conditionApplied}}
+          {{#if (isEqual this.conditionApplied.type 'psychosis')}}
+          <i class="fas fa-skull"></i>
+          {{else}}
+          <i class="fas fa-sparkles"></i>
+          {{/if}}
+        {{else}}
+          {{#if (isEqual this.from this.to)}}
+          <i class="fas fa-heart"></i>
+          {{else}}
+          <i class="fas fa-exchange-alt"></i>
+          {{/if}}
+        {{/if}}
+      </div>
+      <div class="marker-line"></div>
+    </div>
+    <div class="timeline-content">
+      <div class="timeline-header">
+        <h4>
+          {{#if (isEqual this.from this.to)}}
+          Восстановление рассудка
+          {{else}}
+          Изменение уровня стресса: {{this.from}} → {{this.to}}
+          {{/if}}
+        </h4>
+        <span class="timeline-date">{{timestampToDate this.timestamp}}</span>
+      </div>
+      <div class="timeline-body">
+        {{#if this.reason}}
+        <p class="timeline-reason">{{this.reason}}</p>
+        {{/if}}
+        
+        {{#if this.conditionApplied}}
+        <div class="condition-applied">
+          <div class="applied-condition {{this.conditionApplied.type}}">
+            <i class="fas fa-{{getConditionIcon this.conditionApplied.type}}"></i>
+            <div class="applied-condition-info">
+              <strong>{{this.conditionApplied.name}}</strong>
+              <span class="condition-type-badge {{this.conditionApplied.type}}">
+                {{getConditionType this.conditionApplied.type}} (Уровень {{this.conditionApplied.tier}})
+              </span>
+            </div>
+          </div>
+        </div>
+        {{/if}}
+        
+        {{#if this.psychosisChance}}
+        <div class="timeline-stats">
+          <span class="stat-badge psychosis">
+            <i class="fas fa-skull"></i>
+            Шанс психоза: {{multiply this.psychosisChance 100}}%
+          </span>
+          <span class="stat-badge inspiration">
+            <i class="fas fa-sparkles"></i>
+            Шанс воодушевления: {{multiply this.inspirationChance 100}}%
+          </span>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+  {{/each}}
+</div>
+{{else}}
+<div class="empty-state">
+  <div class="empty-icon">
+    <i class="fas fa-history"></i>
+  </div>
+  <h3>История стресса пуста</h3>
+  <p>У вашего персонажа еще не было изменений уровня стресса</p>
+</div>
+{{/if}}
+  </div>
+    
+    
+    <!-- Вкладка: Справка -->
+  <div class="tab-content" data-tab="info">
+    <div class="info-container">
+      <div class="info-header">
+        <h3><i class="fas fa-question-circle"></i> О системе рассудка</h3>
+        <p class="info-subtitle">Руководство по использованию и механикам</p>
+      </div>
+      
+      <div class="info-sections">
+        <div class="info-section">
+          <h4><i class="fas fa-cogs"></i> Как работает система?</h4>
+          <div class="section-content">
+            <p>Система отслеживает психическое состояние вашего персонажа. При достижении 0% рассудка повышается уровень стресса и применяется случайное состояние (психоз или воодушевление).</p>
+            <ul class="info-list">
+              <li><i class="fas fa-arrow-down"></i> Рассудок уменьшается от стрессовых событий</li>
+              <li><i class="fas fa-arrow-up"></i> Рассудок восстанавливается при отдыхе и терапии</li>
+              <li><i class="fas fa-exclamation"></i> При 0% рассудка - повышение уровня стресса</li>
+              <li><i class="fas fa-random"></i> При повышении уровня стресса - случайное состояние</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="info-section">
+          <h4><i class="fas fa-layer-group"></i> Уровни стресса</h4>
+          <div class="stress-levels-grid">
+            <!-- Уровень 0 -->
+            <div class="stress-level-info level-0">
+              <div class="level-header">
+                <span class="level-badge">0</span>
+                <h5>Нормальное состояние</h5>
+              </div>
+              <p class="level-desc">Персонаж в норме, рассудок стабилен. Шанс психоза появится при первом достижении 0% рассудка.</p>
+              <div class="level-chances">
+                <span class="chance-badge psychosis">60%</span>
+                <span class="chance-badge inspiration">40%</span>
+              </div>
+            </div>
+            
+            <!-- Уровни 1-5 -->
+            {{#each stressDescriptions}}
+            <div class="stress-level-info level-{{this.level}}">
+              <div class="level-header">
+                <span class="level-badge">{{this.level}}</span>
+                <h5>{{this.name}}</h5>
+              </div>
+              <p class="level-desc">{{this.description}}</p>
+              <div class="level-chances">
+                <span class="chance-badge psychosis">{{#if (eq this.level 5)}}75%{{else}}60%{{/if}}</span>
+                <span class="chance-badge inspiration">{{#if (eq this.level 5)}}25%{{else}}40%{{/if}}</span>
+              </div>
+            </div>
+            {{/each}}
+          </div>
+        </div>
+        
+        <div class="info-section">
+          <h4><i class="fas fa-dice"></i> Шансы состояний</h4>
+          <div class="section-content">
+            <div class="chances-table">
+              <div class="table-header">
+                <div class="table-cell">Уровень</div>
+                <div class="table-cell">Психоз</div>
+                <div class="table-cell">Воодушевление</div>
+              </div>
+              <div class="table-row level-0">
+                <div class="table-cell">0</div>
+                <div class="table-cell psychosis">-</div>
+                <div class="table-cell inspiration">-</div>
+              </div>
+              <div class="table-row">
+                <div class="table-cell">1-4</div>
+                <div class="table-cell psychosis">60%</div>
+                <div class="table-cell inspiration">40%</div>
+              </div>
+              <div class="table-row">
+                <div class="table-cell">5</div>
+                <div class="table-cell psychosis">75%</div>
+                <div class="table-cell inspiration">25%</div>
+              </div>
+            </div>
+            <div class="info-note warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p><strong>Особенность 5 уровня:</strong> Шанс воодушевления уменьшается на 5% при каждом достижении 0% рассудка</p>
+            </div>
+            <div class="info-note">
+              <i class="fas fa-redo"></i>
+              <p><strong>Сброс с 5 уровня:</strong> 50% шанс сбросить уровень стресса с 5 на 4 при достижении 0% рассудка</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="info-section">
+          <h4><i class="fas fa-lightbulb"></i> Советы по отыгрышу</h4>
+          <div class="section-content">
+            <div class="tip-cards">
+              <div class="tip-card">
+                <div class="tip-icon">
+                  <i class="fas fa-comments"></i>
+                </div>
+                <h5>Обсудите с мастером</h5>
+                <p>Все состояния являются текстовыми эффектами для отыгрыша. Обсудите с мастером, как именно психозы и воодушевления проявляются у вашего персонажа.</p>
+              </div>
+              <div class="tip-card">
+                <div class="tip-icon">
+                  <i class="fas fa-book"></i>
+                </div>
+                <h5>Используйте библиотеку</h5>
+                <p>В библиотеке состояний вы можете ознакомиться со всеми доступными психозов и воодушевлений, их описаниями и эффектами.</p>
+              </div>
+              <div class="tip-card">
+                <div class="tip-icon">
+                  <i class="fas fa-user-md"></i>
+                </div>
+                <h5>Заботьтесь о рассудке</h5>
+                <p>Регулярно восстанавливайте рассудок через отдых, терапию и положительные события. Высокий уровень стресса опасен для персонажа.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="info-footer">
+        <p><i class="fas fa-shield-alt"></i> Формула рассудка: 10 + модификаторы (Интеллект + Харизма + Мудрость)</p>
+      </div>
+    </div>
+  </div>
+  
+</div>
+  
+  {{else}}
+  
+  <!-- Сообщение об отсутствии персонажа -->
+  <div class="no-character">
+    <div class="no-character-icon">
+      <i class="fas fa-user-slash"></i>
+    </div>
+    <h2>Персонаж не найден</h2>
+    <p>{{message}}</p>
+    <p class="no-character-hint">
+      Назначьте персонажа в настройках своего пользователя или попросите мастера сделать это.
+    </p>
+  </div>
+  
+  {{/if}}
+
+
+<!-- Подвал -->
+<div class="panel-footer">
+  <div class="footer-info">
+    <p>
+      <i class="fas fa-info-circle"></i> 
+      Shinju Sanity System v1.0.0 | 
+      Уровень стресса: {{stressLevel}} | 
+      Рассудок: {{sanity}}/{{maxSanity}} ({{round sanityPercentage 1}}%)
+    </p>
+  </div>
+</div>
